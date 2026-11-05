@@ -1,502 +1,314 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student AI Performance Predictor</title>
+<title>StudentAI | Performance Prediction</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-:root{
-  --bg:#0b1020;--panel:#141c30;--card:#19243b;--text:#edf2ff;
-  --muted:#9aa9c4;--primary:#7c6cff;--cyan:#36c5e8;
-  --green:#36d399;--border:#293653;
-}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);
-font-family:Inter,Arial,sans-serif}
-header{padding:22px 6%;display:flex;justify-content:space-between;
-align-items:center;border-bottom:1px solid var(--border);gap:15px}
-.logo{font-size:21px;font-weight:800}
+:root{
+--bg:#080e1d;--panel:#111b30;--card:#192640;
+--line:#2b3b5c;--text:#edf3ff;--muted:#a4b2cc;
+--cyan:#54d7ed;--purple:#9585ff;--green:#50d6a0;
+}
+body{
+margin:0;background:radial-gradient(circle at 85% 0%,#24265a,transparent 35%),var(--bg);
+color:var(--text);font-family:Arial,sans-serif;
+}
+header{
+padding:20px 6%;display:flex;justify-content:space-between;
+align-items:center;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:12px
+}
+.logo{font-size:22px;font-weight:800}
 .logo span{color:var(--cyan)}
-.status{font-size:12px;color:var(--green);background:#12372f;
-padding:8px 12px;border-radius:20px}
-.hero{padding:45px 6% 25px}
-.hero h1{font-size:clamp(28px,5vw,46px);margin:0 0 12px}
-.hero h1 span{color:var(--cyan)}
-.hero p{color:var(--muted);max-width:650px;line-height:1.7}
-.container{padding:15px 6% 55px;max-width:1400px;margin:auto}
-.layout{display:grid;grid-template-columns:1.05fr .95fr;gap:20px}
-.card{background:var(--panel);border:1px solid var(--border);
-border-radius:18px;padding:23px;margin-bottom:20px}
-.card h2{font-size:19px;margin:0 0 7px}
-.sub{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:20px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-label{display:block;font-size:13px;color:#c5d0e6;margin-bottom:8px}
-input,select{width:100%;padding:13px;background:#0e1729;
-border:1px solid var(--border);border-radius:10px;color:white;
-outline:none;font-size:14px}
-input:focus,select:focus{border-color:var(--primary)}
-button{border:0;border-radius:10px;padding:13px 18px;
-font-weight:700;cursor:pointer}
-.primary{background:linear-gradient(120deg,#7567ff,#438de9);
-color:white;width:100%;margin-top:20px}
-.secondary{background:#26334e;color:white}
-button:disabled{opacity:.5;cursor:not-allowed}
-.result{background:linear-gradient(135deg,#22234c,#123449);
-border:1px solid #3a4d79;border-radius:16px;padding:20px;
-margin-top:18px;display:none}
-.score{font-size:48px;font-weight:800;color:var(--cyan);margin:10px 0}
-.result p{color:#d0d9ed;line-height:1.6}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.stat{background:var(--card);border:1px solid var(--border);
-padding:17px;border-radius:13px}
+.status{font-size:12px;color:var(--green)}
+.hero{padding:55px 6% 25px;max-width:1400px;margin:auto}
+.eyebrow{color:var(--cyan);font-size:12px;letter-spacing:3px;font-weight:bold}
+h1{font-size:clamp(32px,5vw,55px);margin:15px 0}
+h1 span{color:var(--cyan)}
+.hero p{color:var(--muted);line-height:1.8;max-width:700px}
+.container{max-width:1400px;margin:auto;padding:20px 6% 60px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px}
+.stat,.card{
+background:linear-gradient(145deg,#172541,#111a2e);
+border:1px solid var(--line);border-radius:17px;padding:21px
+}
 .stat small{color:var(--muted)}
 .stat strong{display:block;font-size:22px;margin-top:9px}
-.chart-wrap{height:250px;position:relative;margin-top:15px}
-.notice{font-size:12px;color:var(--muted);line-height:1.6}
-.tag{display:inline-block;padding:6px 10px;border-radius:20px;
-background:#253456;color:#cbd7ff;font-size:11px;margin:4px 4px 4px 0}
-#message{font-size:13px;color:var(--muted);margin-top:12px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-td,th{text-align:left;padding:12px;border-bottom:1px solid var(--border)}
-th{color:var(--muted)}
-footer{text-align:center;padding:25px;color:var(--muted);
-border-top:1px solid var(--border);font-size:12px}
-@media(max-width:850px){
- .layout{grid-template-columns:1fr}
+.layout{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+h2{margin-top:0}
+.sub{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:20px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+label{display:block;font-size:13px;color:#cbd6eb;margin-bottom:7px}
+input,select{
+width:100%;padding:12px;background:#0c1528;
+border:1px solid var(--line);border-radius:10px;color:white
 }
-@media(max-width:520px){
- header{padding:17px 5%}
- .hero,.container{padding-left:5%;padding-right:5%}
- .form-grid{grid-template-columns:1fr}
- .stats{grid-template-columns:1fr}
- .card{padding:17px}
+input:focus,select:focus{outline:1px solid var(--cyan)}
+button{
+border:0;border-radius:11px;padding:14px;font-weight:bold;cursor:pointer
 }
+.primary{
+width:100%;margin-top:22px;
+background:linear-gradient(110deg,var(--cyan),#9b8cff);color:#081324
+}
+.primary:disabled{opacity:.5}
+.result{
+display:none;margin-top:20px;padding:20px;
+border:1px solid #3b6680;border-radius:15px;
+background:linear-gradient(130deg,#202b56,#12394a)
+}
+.result.show{display:block}
+.score{font-size:48px;font-weight:800;color:var(--cyan);margin:10px 0}
+.pill{display:inline-block;padding:7px 12px;background:#263b5d;border-radius:30px;font-size:12px}
+.chart{height:250px;margin-top:20px}
+.tip{padding:13px;background:#102d30;border:1px solid #23534c;border-radius:12px;margin-top:12px;font-size:13px;line-height:1.6}
+.error{display:none;padding:12px;background:#48252c;color:#ffc1c1;border-radius:10px;margin-top:12px}
+.notice{color:var(--muted);font-size:12px;line-height:1.7;margin-top:20px}
+footer{text-align:center;padding:25px;color:var(--muted);border-top:1px solid var(--line);font-size:12px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}}
+@media(max-width:550px){.form-grid,.stats{grid-template-columns:1fr}.hero,.container{padding-left:5%;padding-right:5%}}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">🎓 Student<span>AI</span></div>
-  <div class="status" id="modelStatus">● Loading AI model...</div>
+ <div class="logo">STUDENT<span>AI</span> ✦</div>
+ <div class="status" id="status">● Checking AI Server</div>
 </header>
 
 <section class="hero">
-  <h1>Student Performance <span>Prediction</span></h1>
-  <p>
-    An AI-powered educational project that estimates academic performance
-    using study habits and previous academic results. Explore predictions
-    and understand how learning factors relate to scores.
-  </p>
-  <span class="tag">Machine Learning</span>
-  <span class="tag">Linear Regression</span>
-  <span class="tag">AI Analytics</span>
+ <div class="eyebrow">ARTIFICIAL INTELLIGENCE · EDUCATION</div>
+ <h1>Predict Your<br><span>Academic Performance.</span></h1>
+ <p>Smart student performance prediction powered by Machine Learning.
+ Enter academic details and receive an estimated result with useful improvement suggestions.</p>
 </section>
 
 <main class="container">
-  <div class="stats">
-    <div class="stat"><small>Training records</small><strong id="records">Loading</strong></div>
-    <div class="stat"><small>Model MAE</small><strong id="mae">--</strong></div>
-    <div class="stat"><small>Model R²</small><strong id="r2">--</strong></div>
-  </div>
 
-  <div class="layout" style="margin-top:20px">
-    <section class="card">
-      <h2>🤖 Predict Student Performance</h2>
-      <p class="sub">Enter academic information to get an estimated final score.</p>
+<div class="stats">
+ <div class="stat"><small>Machine Learning</small><strong>Random Forest</strong></div>
+ <div class="stat"><small>Dataset</small><strong>UCI Student Data</strong></div>
+ <div class="stat"><small>Prediction Scale</small><strong>0–20 Marks</strong></div>
+</div>
 
-      <form id="predictionForm">
-        <div class="form-grid">
-          <div>
-            <label for="study">Daily study hours</label>
-            <input id="study" type="number" min="0" max="16" step="0.5" value="3" required>
-          </div>
-          <div>
-            <label for="attendance">Attendance (%)</label>
-            <input id="attendance" type="number" min="0" max="100" value="85" required>
-          </div>
-          <div>
-            <label for="previous">Previous marks (%)</label>
-            <input id="previous" type="number" min="0" max="100" value="70" required>
-          </div>
-          <div>
-            <label for="internal">Internal marks (%)</label>
-            <input id="internal" type="number" min="0" max="100" value="75" required>
-          </div>
-          <div>
-            <label for="failures">Previous subject failures</label>
-            <select id="failures">
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3 or more</option>
-            </select>
-          </div>
-        </div>
-        <button class="primary" id="predictBtn" type="submit" disabled>
-          ✨ Predict Performance
-        </button>
-        <div id="message">Please wait while the AI model loads.</div>
-      </form>
+<div class="layout">
 
-      <div class="result" id="result">
-        <div>Predicted final score</div>
-        <div class="score" id="score">--</div>
-        <strong id="level">--</strong>
-        <p id="advice"></p>
-        <button class="secondary" id="downloadBtn" type="button">
-          Download Prediction Report
-        </button>
-      </div>
-    </section>
+<section class="card">
+<h2>🎓 Student Details</h2>
+<p class="sub">Enter the student's academic information.</p>
 
-    <section>
-      <div class="card">
-        <h2>📊 Prediction Analysis</h2>
-        <p class="sub">Compare the estimated score with the dataset average.</p>
-        <div class="chart-wrap">
-          <canvas id="scoreChart"></canvas>
-        </div>
-      </div>
+<form id="form">
+<div class="form-grid">
 
-      <div class="card">
-        <h2>🧠 How the AI works</h2>
-        <p class="sub">
-          This project trains a Linear Regression model in your browser.
-          It learns patterns from student records and uses those patterns
-          to estimate a score for the entered academic information.
-        </p>
-        <div class="tag">Previous marks</div>
-        <div class="tag">Internal marks</div>
-        <div class="tag">Study time</div>
-        <div class="tag">Attendance estimate</div>
-        <div class="tag">Previous failures</div>
-        <p class="notice" id="dataSource">
-          Loading training dataset...
-        </p>
-      </div>
-    </section>
-  </div>
+<div><label>Age</label>
+<input id="age" type="number" min="15" max="22" value="17" required></div>
 
-  <section class="card">
-    <h2>📈 Model Performance</h2>
-    <p class="sub">
-      The model is evaluated on records kept separate from its training data.
-      MAE measures average prediction error; R² measures how well the model
-      explains score variation.
-    </p>
-    <div class="chart-wrap">
-      <canvas id="metricChart"></canvas>
-    </div>
-    <p class="notice">
-      Results depend on the dataset and its limitations. They are not a
-      guarantee of any student's actual exam result.
-    </p>
-  </section>
+<div><label>Weekly Study Time</label>
+<select id="studytime">
+<option value="1">Less than 2 hours</option>
+<option value="2" selected>2–5 hours</option>
+<option value="3">5–10 hours</option>
+<option value="4">More than 10 hours</option>
+</select></div>
 
-  <section class="card">
-    <h2>🕘 Recent predictions</h2>
-    <p class="sub">Predictions made during this browser session.</p>
-    <div style="overflow-x:auto">
-      <table>
-        <thead><tr><th>Study hours</th><th>Attendance</th>
-        <th>Previous marks</th><th>Predicted score</th></tr></thead>
-        <tbody id="history">
-          <tr><td colspan="4">No predictions yet.</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+<div><label>Past Failures</label>
+<select id="failures">
+<option>0</option><option>1</option><option>2</option><option>3</option>
+</select></div>
+
+<div><label>School Absences</label>
+<input id="absences" type="number" min="0" max="100" value="4" required></div>
+
+<div><label>Previous Grade G1</label>
+<input id="G1" type="number" min="0" max="20" value="12" required></div>
+
+<div><label>Recent Grade G2</label>
+<input id="G2" type="number" min="0" max="20" value="13" required></div>
+
+<div><label>Mother's Education</label>
+<select id="Medu">
+<option value="0">0 - None</option><option value="1">1 - Primary</option>
+<option value="2">2 - Middle</option><option value="3" selected>3 - Secondary</option>
+<option value="4">4 - Higher</option>
+</select></div>
+
+<div><label>Father's Education</label>
+<select id="Fedu">
+<option value="0">0 - None</option><option value="1">1 - Primary</option>
+<option value="2">2 - Middle</option><option value="3" selected>3 - Secondary</option>
+<option value="4">4 - Higher</option>
+</select></div>
+
+<div><label>School Support</label>
+<select id="schoolsup"><option value="no">No</option><option value="yes">Yes</option></select></div>
+
+<div><label>Family Support</label>
+<select id="famsup"><option value="no">No</option><option value="yes" selected>Yes</option></select></div>
+
+<div><label>Extra Paid Classes</label>
+<select id="paid"><option value="no">No</option><option value="yes">Yes</option></select></div>
+
+<div><label>Activities</label>
+<select id="activities"><option value="no">No</option><option value="yes" selected>Yes</option></select></div>
+
+<div><label>Internet Access</label>
+<select id="internet"><option value="no">No</option><option value="yes" selected>Yes</option></select></div>
+
+<div><label>Higher Education Goal</label>
+<select id="higher"><option value="no">No</option><option value="yes" selected>Yes</option></select></div>
+
+<div><label>Health (1–5)</label>
+<select id="health">
+<option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option>
+</select></div>
+
+<div><label>Going Out (1–5)</label>
+<select id="goout">
+<option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option>
+</select></div>
+
+</div>
+
+<button class="primary" id="btn">✦ Predict Performance</button>
+<div id="error" class="error"></div>
+</form>
+
+<p class="notice">The prediction is an estimate based on historical data. It is not a guaranteed examination result.</p>
+</section>
+
+<section class="card">
+<h2>📊 AI Prediction Report</h2>
+<p class="sub">Your prediction and analysis will appear here.</p>
+
+<div id="empty" class="tip">✦ Fill the student details and click Predict Performance.</div>
+
+<div id="result" class="result">
+ <div id="level" class="pill">Prediction</div>
+ <div class="score"><span id="score">0</span><small style="font-size:16px;color:white"> / 20</small></div>
+ <p id="summary"></p>
+ <div class="chart"><canvas id="chart"></canvas></div>
+ <div id="tips"></div>
+</div>
+</section>
+
+</div>
 </main>
 
-<footer>
-  StudentAI · Student Performance Prediction System · Educational project
-</footer>
+<footer>StudentAI · Machine Learning · Python · Flask · Scikit-learn</footer>
 
 <script>
-const DATA_URL =
- "https://raw.githubusercontent.com/uciml/student-alcohol-consumption/master/student-mat.csv";
-
-let model = null;
-let scoreChart = null;
-let metricChart = null;
-let lastReport = null;
-let historyRows = [];
-let datasetAverage = 0;
+// IMPORTANT: Replace this with your deployed backend URL.
+const API_BASE = "https://YOUR-BACKEND-URL.onrender.com";
 
 const $ = id => document.getElementById(id);
+let myChart = null;
 
-function setMessage(text){ $("message").textContent = text; }
-
-function studyCategory(hours){
-  if(hours < 2) return 1;
-  if(hours < 5) return 2;
-  if(hours < 8) return 3;
-  return 4;
+async function checkServer(){
+ if(API_BASE.includes("YOUR-BACKEND-URL")){
+  $("status").textContent="● Backend URL required";
+  $("status").style.color="#ffd27d";
+  return;
+ }
+ try{
+  const r=await fetch(API_BASE+"/api/health");
+  const d=await r.json();
+  $("status").textContent=d.model_ready?"● AI Online":"● Model Loading";
+ }catch(e){
+  $("status").textContent="● Server Offline";
+ }
 }
 
-// A fallback dataset is generated only if the online dataset cannot load.
-// The interface clearly identifies this as demo data.
-function makeDemoData(){
-  const rows = [];
-  for(let i=0;i<500;i++){
-    const study = 1 + (i*7 % 4);
-    const absences = (i*13 % 20);
-    const failures = i % 5 === 0 ? 1 : 0;
-    const g1 = 7 + (i*17 % 13);
-    const g2 = Math.min(20, Math.max(0, g1 + ((i*3 % 7)-3)));
-    const noise = ((i*19 %  nine()) - 4);
-    const g3 = Math.max(0,Math.min(20,
-      0.25*g1 + 0.48*g2 + study*0.45 - absences*0.06
-      - failures*1.4 + noise*0.08
-    ));
-    rows.push({x:[g1,g2,study,absences,failures],y:g3});
-  }
-  return rows;
-}
-function nine(){ return 9; }
+$("form").addEventListener("submit",async function(e){
+ e.preventDefault();
 
-function parseDataset(csv){
-  const lines = csv.trim().split(/\r?\n/);
-  const headers = lines[0].split(";").map(x=>x.trim());
-  const index = {};
-  headers.forEach((h,i)=>index[h]=i);
+ $("error").style.display="none";
 
-  const required = ["G1","G2","studytime","absences","failures","G3"];
-  if(!required.every(k=>index[k] !== undefined)){
-    throw new Error("Dataset columns do not match.");
-  }
+ if(API_BASE.includes("YOUR-BACKEND-URL")){
+  $("error").textContent="Please deploy the Python backend and add its URL in API_BASE.";
+  $("error").style.display="block";
+  return;
+ }
 
-  const rows = [];
-  for(const line of lines.slice(1)){
-    const c = line.split(";");
-    const values = required.map(k=>Number(c[index[k]]));
-    if(values.every(Number.isFinite)){
-      rows.push({
-        x:values.slice(0,5),
-        y:values[5]
-      });
-    }
-  }
-  if(rows.length < 30) throw new Error("Not enough training records.");
-  return rows;
-}
+ const fields=[
+  "age","studytime","failures","absences","G1","G2",
+  "Medu","Fedu","schoolsup","famsup","paid",
+  "activities","internet","higher","health","goout"
+ ];
 
-function trainModel(rows){
-  // Deterministic train/test split
-  const train = rows.filter((_,i)=>i%5 !== 0);
-  const test = rows.filter((_,i)=>i%5 === 0);
+ const numeric=[
+  "age","studytime","failures","absences","G1","G2",
+  "Medu","Fedu","health","goout"
+ ];
 
-  const means = [], stds = [];
-  for(let j=0;j<5;j++){
-    const vals = train.map(r=>r.x[j]);
-    const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
-    const variance = vals.reduce((a,b)=>a+(b-mean)**2,0)/vals.length;
-    means.push(mean);
-    stds.push(Math.sqrt(variance) || 1);
-  }
+ const payload={};
 
-  const scale = x => x.map((v,j)=>(v-means[j])/stds[j]);
-  let weights = [0,0,0,0,0];
-  let bias = 10;
-  const learningRate = 0.025;
-  const iterations = 1800;
+ fields.forEach(k=>{
+  payload[k]=numeric.includes(k)?Number($(k).value):$(k).value;
+ });
 
-  for(let epoch=0;epoch<iterations;epoch++){
-    const grad = [0,0,0,0,0];
-    let gradB = 0;
-    for(const row of train){
-      const x = scale(row.x);
-      const prediction = bias + x.reduce((s,v,j)=>s+v*weights[j],0);
-      const error = prediction - row.y;
-      gradB += error;
-      for(let j=0;j<5;j++) grad[j] += error*x[j];
-    }
-    bias -= learningRate*gradB/train.length;
-    for(let j=0;j<5;j++){
-      weights[j] -= learningRate*grad[j]/train.length;
-    }
-  }
+ $("btn").disabled=true;
+ $("btn").textContent="Generating Prediction...";
 
-  const predictRaw = x => {
-    const scaled = scale(x);
-    return bias + scaled.reduce((s,v,j)=>s+v*weights[j],0);
-  };
-
-  const errors = test.map(r=>predictRaw(r.x)-r.y);
-  const mae = errors.reduce((s,e)=>s+Math.abs(e),0)/errors.length;
-  const actualMean = test.reduce((s,r)=>s+r.y,0)/test.length;
-  const ssTot = test.reduce((s,r)=>s+(r.y-actualMean)**2,0);
-  const ssRes = test.reduce((s,e)=>s+e**2,0);
-  const r2 = ssTot ? 1-ssRes/ssTot : 0;
-
-  return {means,stds,weights,bias,mae,r2,predictRaw};
-}
-
-function predict(input){
-  return Math.max(0,Math.min(20,model.predictRaw(input)));
-}
-
-function updateCharts(predicted){
-  const average = datasetAverage*5;
-  const pred = predicted*5;
-
-  if(scoreChart) scoreChart.destroy();
-  scoreChart = new Chart($("scoreChart"),{
-    type:"bar",
-    data:{
-      labels:["Dataset average","Your prediction"],
-      datasets:[{
-        label:"Estimated marks (%)",
-        data:[average,pred],
-        backgroundColor:["#7c6cff","#36c5e8"],
-        borderRadius:9
-      }]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      scales:{y:{min:0,max:100}},
-      plugins:{legend:{display:false}}
-    }
+ try{
+  const response=await fetch(API_BASE+"/api/predict",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify(payload)
   });
-}
 
-function showResult(score,inputs){
-  const percentage = Math.round(score*5);
-  $("score").textContent = percentage + " / 100";
+  const data=await response.json();
 
-  let level, advice;
-  if(percentage >= 80){
-    level="Excellent estimated performance";
-    advice="Keep following your study routine. Continue revising topics and practising regularly.";
-  }else if(percentage >= 60){
-    level="Good estimated performance";
-    advice="You have a good foundation. Regular revision and extra practice may help you improve.";
-  }else if(percentage >= 40){
-    level="Needs more practice";
-    advice="Try a consistent study schedule, review difficult topics, and ask teachers for support.";
-  }else{
-    level="More academic support may help";
-    advice="Start with small study goals, practise basic concepts, and discuss a learning plan with a teacher.";
-  }
+  if(!response.ok)throw new Error(data.error||"Prediction failed");
 
-  $("level").textContent=level;
-  $("advice").textContent=advice;
-  $("result").style.display="block";
+  const score=Number(data.prediction);
 
-  lastReport={
-    predicted_score:percentage,
-    study_hours:inputs[2],
-    attendance:inputs[3],
-    previous_marks:inputs[0]*5,
-    internal_marks:inputs[1]*5,
-    previous_failures:inputs[4],
-    model:"Linear Regression",
-    note:"Educational estimate, not a guaranteed exam result."
-  };
+  $("empty").style.display="none";
+  $("result").classList.add("show");
+  $("score").textContent=score.toFixed(2);
+  $("level").textContent=data.level;
+  $("summary").textContent=
+   "Estimated final marks: "+score.toFixed(2)+
+   " / 20 ("+(score*5).toFixed(1)+"%).";
 
-  updateCharts(score);
-  historyRows.unshift(lastReport);
-  $("history").innerHTML=historyRows.slice(0,8).map(r=>
-    `<tr><td>${r.study_hours}</td><td>${r.attendance}%</td>
-    <td>${r.previous_marks}%</td><td>${r.predicted_score}%</td></tr>`
+  $("tips").innerHTML=(data.suggestions||[]).map(
+   t=>`<div class="tip">✦ ${t}</div>`
   ).join("");
-}
 
-$("predictionForm").addEventListener("submit",e=>{
-  e.preventDefault();
-  if(!model) return;
+  if(myChart)myChart.destroy();
 
-  const study=Number($("study").value);
-  const attendance=Number($("attendance").value);
-  const previous=Number($("previous").value);
-  const internal=Number($("internal").value);
-  const failures=Number($("failures").value);
-
-  if(![study,attendance,previous,internal,failures].every(Number.isFinite) ||
-     study<0 || study>16 || attendance<0 || attendance>100 ||
-     previous<0 || previous>100 || internal<0 || internal>100){
-    setMessage("Please enter valid values in all fields.");
-    return;
-  }
-
-  const input=[
-    previous/5,
-    internal/5,
-    studyCategory(study),
-    ((100-attendance)/100)*30,
-    failures
-  ];
-
-  const prediction=predict(input);
-  showResult(prediction,[previous/5,internal/5,study,attendance,failures]);
-  setMessage("Prediction completed using the trained model.");
-});
-
-$("downloadBtn").addEventListener("click",()=>{
-  if(!lastReport) return;
-  const csv=[
-    "Field,Value",
-    ...Object.entries(lastReport).map(([k,v])=>`${k},${v}`)
-  ].join("\n");
-  const blob=new Blob([csv],{type:"text/csv"});
-  const link=document.createElement("a");
-  link.href=URL.createObjectURL(blob);
-  link.download="student-performance-report.csv";
-  link.click();
-  URL.revokeObjectURL(link.href);
-});
-
-function showMetrics(){
-  if(metricChart) metricChart.destroy();
-  metricChart=new Chart($("metricChart"),{
-    type:"bar",
-    data:{
-      labels:["MAE (lower is better)","R² (higher is better)"],
-      datasets:[{
-        label:"Model evaluation",
-        data:[model.mae,model.r2],
-        backgroundColor:["#7c6cff","#36c5e8"],
-        borderRadius:8
-      }]
+  myChart=new Chart($("chart"),{
+   type:"bar",
+   data:{
+    labels:["Previous Grade","Recent Grade","Predicted Grade"],
+    datasets:[{
+     data:[payload.G1,payload.G2,score],
+     backgroundColor:["#6479ad","#9585ff","#54d7ed"],
+     borderRadius:8
+    }]
+   },
+   options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    scales:{
+     y:{min:0,max:20,ticks:{color:"#a4b2cc"}},
+     x:{ticks:{color:"#dce7fa"}}
     },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}}
-    }
+    plugins:{legend:{display:false}}
+   }
   });
-}
 
-async function start(){
-  let rows;
-  try{
-    const response=await fetch(DATA_URL);
-    if(!response.ok) throw new Error("Dataset request failed: "+response.status);
-    rows=parseDataset(await response.text());
-    $("dataSource").textContent=
-      "Training data: UCI Student Performance dataset (Math course).";
-  }catch(error){
-    console.warn(error);
-    rows=makeDemoData();
-    $("dataSource").textContent=
-      "Online dataset could not be loaded. A generated demonstration dataset is being used instead; its results are not based on real student records.";
-  }
+ }catch(err){
+  $("error").textContent=err.message;
+  $("error").style.display="block";
+ }finally{
+  $("btn").disabled=false;
+  $("btn").textContent="✦ Predict Performance";
+ }
+});
 
-  model=trainModel(rows);
-  datasetAverage=rows.reduce((s,r)=>s+r.y,0)/rows.length;
-
-  $("records").textContent=rows.length;
-  $("mae").textContent=model.mae.toFixed(2)+" / 20";
-  $("r2").textContent=model.r2.toFixed(3);
-  $("modelStatus").textContent="● AI model ready";
-  $("modelStatus").style.color="#36d399";
-  $("predictBtn").disabled=false;
-  setMessage("AI model is ready. Enter student details to begin.");
-  showMetrics();
-}
-
-start();
+checkServer();
 </script>
 </body>
 </html>
